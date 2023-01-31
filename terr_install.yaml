@@ -1,0 +1,55 @@
+- name: Install terraform
+  hosts: localhost
+  gather_facts: yes
+  become: no
+  vars:
+    keyring_dest: "/usr/share/keyrings/hashicorp-archive-keyring.gpg"
+
+  tasks:
+  - name: Download the signed key to a new keyring
+    get_url:
+      url: https://apt.releases.hashicorp.com/gpg
+      dest: "{{ keyring_dest }}" 
+    become: yes
+
+  - name: --dearmor old_key_format to new one
+    shell: cat "{{ keyring_dest }}" | gpg --dearmor | tee "{{ keyring_dest }}"
+    args:
+      executable: /bin/bash
+    become: yes
+
+  # - name: Verify the key's fingerprint
+  #   shell: gpg --no-default-keyring --keyring "{{ keyring_dest }}" --fingerprint
+  #   args:
+  #     executable: /bin/bash
+  #   register: key_s_fingerprint
+
+  # - name: Display key's fingerprint
+  #   debug:
+  #     msg: "{{ key_s_fingerprint.stdout }}"
+
+  - name: Add the HashiCorp repo
+    shell: |
+      echo "deb [signed-by={{ keyring_dest }}] https://apt.releases.hashicorp.com $(lsb_release -cs) main" |\
+      tee /etc/apt/sources.list.d/hashicorp.list
+    args:
+      executable: /bin/bash
+    become: yes
+
+  - name: Install terraform
+    apt: 
+      pkg: terraform
+      state: latest
+      update_cache: yes
+    become: yes
+
+  # - name: Verify the instalation
+  #   shell: terraform -help
+  #   args:
+  #     executable: /bin/bash
+  #   register: terraform_help
+
+  # - name: Display verification result
+  #   debug:
+  #     msg: "{{ terraform_help.stdout }}"
+
