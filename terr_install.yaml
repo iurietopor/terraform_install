@@ -53,3 +53,8 @@
   #   debug:
   #     msg: "{{ terraform_help.stdout }}"
 
+  - name: Install the autocomplete package
+    shell: touch ~/.bashrc && terraform -install-autocomplete
+    args:
+      executable: /bin/bash
+
