@@ -17,7 +17,7 @@ Verified on:
 2. Execute:
 
     ```bash
-    ansible-playbook terr-install.yaml -K
+    ansible-playbook terr_install.yaml -K
     ```
     * `-K` - provide *sudo* password for ansible *privilege escalation*
 
